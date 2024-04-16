@@ -1,113 +1,89 @@
 # Livox ROS Driver 2
 
-Livox ROS Driver 2 is the 2nd-generation driver package used to connect LiDAR products produced by Livox, applicable for ROS (noetic recommended) and ROS2 (foxy or humble recommended).
+Livox ROS Driver 2는 Livox 사 LiDAR를 위한 2세대 드라이버를 ROS 및 ROS2에서 적용 가능하게 패키지화한 것입니다.
+
+이 repository는 최신 livox ros 드라이버를 ROS2 전용으로 축소하고, 기존 ros workspace에 포함하여 동시에 빌드할 수 있도록 수정한 버전입니다.
+
+Ubuntu 22.04 및 ROS2 Humble에서 활용하여야 합니다.
+
+문의: 정용섭 (yongseop@)
 
   **Note :**
 
   As a debugging tool, Livox ROS Driver is not recommended for mass production but limited to test scenarios. You should optimize the code based on the original source to meet your various needs.
 
-## 1. Preparation
+## 1. 준비
 
 ### 1.1 OS requirements
 
-  * Ubuntu 18.04 for ROS Melodic;
-  * Ubuntu 20.04 for ROS Noetic and ROS2 Foxy;
-  * Ubuntu 22.04 for ROS2 Humble;
+  * Ubuntu 22.04 for ROS2 Humble
 
-  **Tips:**
 
-  Colcon is a build tool used in ROS2.
+### 1.2 Install ROS2
 
-  How to install colcon: [Colcon installation instructions](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)
-
-### 1.2 Install ROS & ROS2
-
-For ROS Melodic installation, please refer to:
-[ROS Melodic installation instructions](https://wiki.ros.org/melodic/Installation)
-
-For ROS Noetic installation, please refer to:
-[ROS Noetic installation instructions](https://wiki.ros.org/noetic/Installation)
-
-For ROS2 Foxy installation, please refer to:
-[ROS Foxy installation instructions](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html)
-
-For ROS2 Humble installation, please refer to:
+ROS2 Humble을 설치합니다.
 [ROS Humble installation instructions](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 
-Desktop-Full installation is recommend.
 
 ## 2. Build & Run Livox ROS Driver 2
 
 ### 2.1 Clone Livox ROS Driver 2 source code:
 
+이 repo에 올린 ROS 드라이버를 클론합니다.
+
 ```shell
-git clone https://github.com/Livox-SDK/livox_ros_driver2.git ws_livox/src/livox_ros_driver2
+git clone https://github.com/GuideDog-ETRI/livox_ros_driver2
 ```
 
   **Note :**
 
-  Be sure to clone the source code in a '[work_space]/src/' folder (as shown above), otherwise compilation errors will occur due to the compilation tool restriction.
+  소스코드는 '[work_space]/src/' 디렉토리에 저장되어야 합니다. (ex: ~/gd_ros2_ws/src)
 
 ### 2.2 Build & install the Livox-SDK2
 
-  **Note :**
+  Livox SDK를 다운로드, 빌드 및 인스톨합니다.
+  
+  이 지침대로 따라하시면 됩니다. [Livox-SDK2/README.md](https://github.com/Livox-SDK/Livox-SDK2/blob/master/README.md)
 
-  Please follow the guidance of installation in the [Livox-SDK2/README.md](https://github.com/Livox-SDK/Livox-SDK2/blob/master/README.md)
+  다운로드 경로는 크게 중요하지 않습니다.
+
+  제 경우에는 ~/3rdparty/Livox-SDK2 에 다운로드하였고, 빌드 결과물은 ~/3rdparty/Livox-SDK2/build에 저장되었습니다.
 
 ### 2.3 Build the Livox ROS Driver 2:
 
-#### For ROS (take Noetic as an example):
-```shell
-source /opt/ros/noetic/setup.sh
-./build.sh ROS1
-```
-
-#### For ROS2 Foxy:
-```shell
-source /opt/ros/foxy/setup.sh
-./build.sh ROS2
-```
-
-#### For ROS2 Humble:
-```shell
-source /opt/ros/humble/setup.sh
-./build.sh humble
-```
-
-### 2.4 Run Livox ROS Driver 2:
-
-#### For ROS:
+  
 
 ```shell
-source ../../devel/setup.sh
-roslaunch livox_ros_driver2 [launch file]
+source /opt/ros/humble/setup.sh # 기본 ROS2 sourcing
+# 원하는 방법으로 workspace에서 빌드하시면 됩니다. --symlink-install 옵션은 꼭 추천드립니다.
+colcon build --symlink-install --cmake-args=-DCMAKE_BUILD_TYPE=Release --parallel-workers $(nproc) 
 ```
 
-in which,  
 
-* **livox_ros_driver2** : is the ROS package name of Livox ROS Driver 2;
-* **[launch file]** : is the ROS launch file you want to use; the 'launch_ROS1' folder contains several launch samples for your reference;  
+### 2.4 Livox ROS Driver 2 설정
 
-An rviz launch example for HAP LiDAR would be:
+src/config/(센서명)_config.json을 열어서 다음 항목을 수정합니다.
 
-```shell
-roslaunch livox_ros_driver2 rviz_HAP.launch
-```
+host_net_info: Livox와 연결된 랜 포트에 Static IP로 입력한 IP입니다.
+
+lidar_configs: Livox에 상수로 저장된 고유 IP입니다. 192.168.1.XXX 형태이며 XXX는 시리얼 넘버의 가장 마지막 3자리입니다.
+
+### 2.5 Run Livox ROS Driver 2:
 
 #### For ROS2:
 ```shell
-source ../../install/setup.sh
+#source ${ROS2_WORKSPACE_DIR}/install/local_setup.bash 등으로 ros2 workspace를 소싱합니다.
 ros2 launch livox_ros_driver2 [launch file]
 ```
 
-in which,  
+여기서,  
 
-* **[launch file]** : is the ROS2 launch file you want to use; the 'launch_ROS2' folder contains several launch samples for your reference.
+* **[launch file]** : is the ROS2 launch file you want to use; the 'launch' folder contains several launch samples for your reference.
 
-A rviz launch example for HAP LiDAR would be:
+A rviz launch example for MID-360 LiDAR would be:
 
 ```shell
-ros2 launch livox_ros_driver2 rviz_HAP_launch.py
+ros2 launch livox_ros_driver2 rviz_MID360_launch.py
 ```
 
 ## 3. Launch file and livox_ros_driver2 internal parameter configuration instructions
