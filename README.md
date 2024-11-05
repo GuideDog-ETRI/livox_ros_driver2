@@ -24,7 +24,6 @@ Ubuntu 22.04 및 ROS2 Humble에서 활용하여야 합니다.
 ROS2 Humble을 설치합니다.
 [ROS Humble installation instructions](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 
-
 ## 2. Build & Run Livox ROS Driver 2
 
 ### 2.1 Clone Livox ROS Driver 2 source code:
@@ -51,7 +50,13 @@ git clone https://github.com/GuideDog-ETRI/livox_ros_driver2
 
 ### 2.3 Build the Livox ROS Driver 2:
 
-  
+  libpcl-ros-dev를 설치합니다.
+
+```shell
+sudo apt install libpcl-ros-dev 
+```
+
+이제 build를 시도합니다.
 
 ```shell
 source /opt/ros/humble/setup.sh # 기본 ROS2 sourcing
